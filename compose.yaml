@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  db_desafio:
+    hostname: db_desafio
+    container_name: db_desafio
+    image: postgres:16.1
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=desafioshopper
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=desafioshopper2711
+    restart: always
+
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    hostname: backend
+    container_name: backend
+    build:
+      dockerfile: backend/Dockerfile
+    depends_on:
+      - db_desafio
+    env_file:
+      - .env
+    ports:
+      - 8080:4000
+    environment:
+      - DATABASE_HOST=db_desafio
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=desafioshopper2711
+      - DATABASE_NAME=desafioshopper
+    restart: always
+
+  frontend:
+    hostname: frontend
+    container_name: frontend
+    build:
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - 80:3000
+    environment:
+      - BACKEND_URL=http://backend:8080
+    restart: always
+    volumes:
+      - ./frontend:/app
+
+volumes:
+  db_data:
