@@ -1,96 +1,126 @@
-"use client"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  // FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+"use client";
 
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  const formSchema = z.object({
-    username: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
-    }),
-    origem: z.string().min(2, {
-      message: "Origem must be at least 2 characters.",
-    }),
-    destino: z.string().min(2, {
-      message: "Destino must be at least 2 characters.",
-    }),
-  })
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+  const [originSuggestions, setOriginSuggestions] = useState<
+    { placeId: string; text: string }[]
+  >([]);
+  const [destinationSuggestions, setDestinationSuggestions] = useState<
+    { placeId: string; text: string }[]
+  >([]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-    },
-  })
+  const apiUrl = "https://places.googleapis.com/v1/places:autocomplete";
+  const apiKey = "AIzaSyBksGdBkFTkZMVflOExM4Sdh4qPYW4uTy8";
 
+  const fetchSuggestions = async (
+    input: string,
+    type: "origin" | "destination"
+  ) => {
+    if (!input.trim()) return;
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+        },
+        body: JSON.stringify({ input }),
+      });
+      const data = await response.json();
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
-  }
+      const suggestions =
+        data?.suggestions?.map((item: any) => ({
+          placeId: item.placePrediction.placeId,
+          text: item.placePrediction.text.text, // Corrigido para acessar o campo "text" corretamente
+        })) || [];
+
+      if (type === "origin") {
+        setOriginSuggestions(suggestions);
+      } else {
+        setDestinationSuggestions(suggestions);
+      }
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSuggestions(origin, "origin");
+  }, [origin]);
+
+  useEffect(() => {
+    fetchSuggestions(destination, "destination");
+  }, [destination]);
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Id do usuário</FormLabel>
-                  <FormControl>
-                    <Input placeholder="usuarioId" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="origem"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Origem</FormLabel>
-                  <FormControl>
-                    <Input placeholder="origem" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="destino"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Destino</FormLabel>
-                  <FormControl>
-                    <Input placeholder="destino" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit">Calcular</Button>
-          </form>
-        </Form>
+    <div className="flex flex-col items-center justify-center gap-4 m-4">
+      <main className="flex flex-col items-center sm:items-start p-4">
+        <div className="flex flex-col gap-4 p-2">
+          <label htmlFor="origin">Origem</label>
+          <input
+            id="origin"
+            className="border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            type="text"
+            value={origin}
+            onChange={(e) => setOrigin(e.target.value)}
+            placeholder="Digite a origem"
+          />
+          <ul className="border rounded-md bg-white shadow-md">
+            {originSuggestions.map((suggestion, index) => (
+              <li
+                key={index}
+                className="p-2 hover:bg-blue-100 cursor-pointer"
+                onClick={() => {
+                  setOrigin(suggestion.text);
+                  setOriginSuggestions([]);
+                }}
+              >
+                {suggestion.text}
+              </li>
+            ))}
+          </ul>
+
+          <label htmlFor="destination">Destino</label>
+          <input
+            id="destination"
+            className="border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            type="text"
+            value={destination}
+            onChange={(e) => setDestination(e.target.value)}
+            placeholder="Digite o destino"
+          />
+          <ul className="border rounded-md bg-white shadow-md">
+            {destinationSuggestions.map((suggestion, index) => (
+              <li
+                key={index}
+                className="p-2 hover:bg-blue-100 cursor-pointer"
+                onClick={() => {
+                  setDestination(suggestion.text);
+                  setDestinationSuggestions([]);
+                }}
+              >
+                {suggestion.text}
+              </li>
+            ))}
+          </ul>
+
+          <button
+            className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={!origin || !destination}
+          >
+            Calcular
+          </button>
+        </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center m-6">
+        <iframe
+          width="500"
+          height="350"
+          src="https://www.google.com/maps/embed/v1/directions?key=AIzaSyBksGdBkFTkZMVflOExM4Sdh4qPYW4uTy8&origin=place_id:ChIJvS5CUCARFgcRndtzlTaEHPc&destination=place_id:ChIJ--IExB6rOQcRZysfWJNymsk&avoid=highways"
+        ></iframe>
       </footer>
     </div>
   );
