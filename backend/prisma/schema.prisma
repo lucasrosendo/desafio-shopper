@@ -17,9 +17,10 @@ model Driver {
   driver_id   Int      @id
   name        String
   description String
+  comment     String
   car         String
   rating      Int
-  rate        Int
+  rate        Float
   minKm       Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
