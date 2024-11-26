@@ -1,4 +1,4 @@
-import { Prisma, Rides, Driver } from '@prisma/client';
+import { Rides, Driver } from '@prisma/client';
 import { PrismaService } from '../../infra/prisma.service';
 import { Injectable } from '@nestjs/common';
 
@@ -6,12 +6,36 @@ import { Injectable } from '@nestjs/common';
 export class RideRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createRide(data: Prisma.RidesCreateInput): Promise<Rides> {
-    return this.prisma.rides.create({ data });
+  async createRide(data: {
+    customer_id: string;
+    origin: string;
+    destination: string;
+    distance: number;
+    duration: string;
+    driver: { id: number; name: string };
+    value: number;
+  }): Promise<Rides> {
+    const { driver, ...rideData } = data;
+    return this.prisma.rides.create({
+      data: {
+        ...rideData,
+        driver_id: driver.id,
+      },
+    });
   }
 
-  async findManyRides(customer_id: number): Promise<Rides[]> {
-    return this.prisma.rides.findMany({ where: { customer_id } });
+  async findManyRides(
+    customer_id: string,
+    driver_id?: number,
+  ): Promise<Rides[]> {
+    return this.prisma.rides.findMany({
+      where: {
+        AND: [
+          { customer_id: customer_id },
+          { driver_id: driver_id ? Number(driver_id) : undefined },
+        ],
+      },
+    });
   }
 
   async findDriver(driver_id: number): Promise<Driver> {

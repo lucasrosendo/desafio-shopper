@@ -1,3 +1,5 @@
+// import { Prisma } from '@prisma/client';
+
 export interface RideEntity {
   ride_id: string;
   driver_id: string;
@@ -17,4 +19,20 @@ export interface DriverEntity {
   rating: number;
   rate: number;
   minKm: number;
+}
+
+export interface ConfirmRide {
+  customer_id: string;
+
+  origin: string;
+
+  destination: string;
+
+  distance: number;
+
+  duration: string;
+
+  driver: { id: number; name: string };
+
+  value: number;
 }

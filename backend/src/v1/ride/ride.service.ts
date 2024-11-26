@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { RideRepository } from './ride.repository';
-import { Prisma, Driver, Rides } from '@prisma/client';
+import { Driver, Rides } from '@prisma/client';
 import { CustomException } from '../../utils/custom-exceptions';
+import { ConfirmRide } from './interfaces';
 import * as dotenv from 'dotenv';
 
 dotenv.config({ path: '../.env' });
@@ -12,12 +13,65 @@ export class RideService {
     private readonly rideRepository: RideRepository,
   ) {}
 
-  async createRide(data: Prisma.RidesCreateInput): Promise<Rides> {
-    return this.rideRepository.createRide(data);
+  async createRide(data: ConfirmRide): Promise<any> {
+    if (!data.customer_id) {
+      throw new CustomException({
+        message: 'Customer ID is required',
+        error_code: 'INVALID_DATA',
+        status: 400,
+      });
+    }
+    if (!data.origin) {
+      throw new CustomException({
+        message: 'Origin is required',
+        error_code: 'INVALID_DATA',
+        status: 400,
+      });
+    }
+    if (!data.destination) {
+      throw new CustomException({
+        message: 'Destination is required',
+        error_code: 'INVALID_DATA',
+        status: 400,
+      });
+    }
+    if (data.origin === data.destination) {
+      throw new CustomException({
+        message: 'Origin and destination cannot be the same',
+        error_code: 'INVALID_DATA',
+        status: 400,
+      });
+    }
+    const existDriver = this.findDriver(data.driver.id);
+    if (!existDriver) {
+      throw new CustomException({
+        message: 'Motorista não encontrado',
+        error_code: 'INVALID_DATA',
+        status: 404,
+      });
+    }
+    if ((await existDriver).minKm >= data.distance) {
+      throw new CustomException({
+        message: 'Driver is too far',
+        error_code: 'INVALID_DISTANCE',
+        status: 406,
+      });
+    }
+    await this.rideRepository.createRide(data);
+    const createResponse = {
+      description: 'Operação realizada com sucesso',
+      response: {
+        sucsses: true,
+      },
+    };
+    return createResponse;
   }
 
-  async findManyRides(customer_id: number): Promise<Rides[]> {
-    return this.rideRepository.findManyRides(customer_id);
+  async findManyRides(
+    customer_id: string,
+    driver_id?: number,
+  ): Promise<Rides[]> {
+    return this.rideRepository.findManyRides(customer_id, driver_id);
   }
 
   async findDriver(driver_id: number): Promise<Driver> {

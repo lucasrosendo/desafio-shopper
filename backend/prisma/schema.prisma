@@ -30,11 +30,11 @@ model Driver {
 model Rides {
   ride_id     Int      @id @default(autoincrement())
   driver_id   Int
-  customer_id Int
+  customer_id String
   origin      String
   destination String
   distance    Int
-  duration    Int
+  duration    String
   value       Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
