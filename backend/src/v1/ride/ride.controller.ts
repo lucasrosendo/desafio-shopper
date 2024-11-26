@@ -19,7 +19,7 @@ export class RideController {
     @Query('customer_id') customer_id: string,
     @Query('driver_id') driver_id: number,
   ) {
-    return this.rideService.findManyRides(customer_id, driver_id);
+    return this.rideService.findManyRides(customer_id, Number(driver_id));
   }
 
   @Patch('confirm')

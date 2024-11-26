@@ -24,24 +24,31 @@ export class RideRepository {
     });
   }
 
-  async findManyRides(
-    customer_id: string,
-    driver_id?: number,
-  ): Promise<Rides[]> {
+  async findManyRides(customer_id: string, driver_id?: number): Promise<any[]> {
     return this.prisma.rides.findMany({
       where: {
         AND: [
           { customer_id: customer_id },
-          { driver_id: driver_id ? Number(driver_id) : undefined },
+          { Driver: { driver_id: Number(driver_id) } },
         ],
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        Driver: true,
       },
     });
   }
 
   async findDriver(driver_id: number): Promise<Driver> {
-    return this.prisma.driver.findUnique({
+    return this.prisma.driver.findFirst({
       where: { driver_id: driver_id },
     });
+  }
+
+  async findManyDrivers(): Promise<Driver[]> {
+    return this.prisma.driver.findMany();
   }
 
   async findDriversByDistance(minKm: number): Promise<Driver[]> {
