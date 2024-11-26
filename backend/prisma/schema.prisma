@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Driver {
-  id          String   @id @default(cuid())
+  driver_id   Int      @id
   name        String
   description String
   car         String
@@ -27,9 +27,9 @@ model Driver {
 }
 
 model Rides {
-  id          String   @id @default(cuid())
-  driverId    String
-  customer_id String
+  ride_id     Int      @id @default(autoincrement())
+  driver_id   Int
+  customer_id Int
   origin      String
   destination String
   distance    Int
@@ -38,5 +38,5 @@ model Rides {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  Driver Driver @relation(fields: [driverId], references: [id])
+  Driver Driver @relation(fields: [driver_id], references: [driver_id])
 }
