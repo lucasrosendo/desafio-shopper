@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -160,32 +159,36 @@ export default function Home() {
         </div>
       </main>
       {showMap && (
-        <div className="row-start-3 flex flex-col gap-6 flex-wrap items-center justify-center m-6">
-          <h2>Opções de viagem</h2>
-          <iframe
-            width="400"
-            height="350"
-            src={IframeUrl}
-          ></iframe>
-          <div className="flex flex-col gap-4">
-            <h2>Estimativa de viagem</h2>
-            <div className="flex flex-col gap-2">
-              <span>Distância: {estimate.distance}</span>
-              <span>Tempo: {estimate.duration}</span>
+        <div className="row-start-3 flex flex-col gap-6 flex-wrap items-center justify-center m-6 border rounded-md bg-white shadow-md p-2 font-medium">
+          <h2 className="flex gap-4 border rounded-md bg-white shadow-md p-2 font-medium m-2">Opções de viagem</h2>
+          <div className="flex gap-4 border rounded-md bg-white shadow-md m-4 font-medium">
+
+            <iframe
+              width="400"
+              height="350"
+              src={IframeUrl}
+            ></iframe>
+          </div>
+
+          <div className="flex flex-col items-center gap-4 border rounded-md bg-white shadow-md p-2 font-medium">
+            <h2 className="font-semibold">Estimativa de viagem</h2>
+            <div className="flex gap-2">
+              <span><strong>Distância:</strong> {estimate.distance}</span>
+              <span><strong>Tempo:</strong> {estimate.duration}</span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <h2>Motoristas disponíveis</h2>
-            <ul className="border rounded-md bg-white shadow-md">
+          <div className="flex flex-col text-justify items-center">
+            <h2 className="text-lg font-medium text-gray-900">Motoristas disponíveis</h2>
+            <ul>
               {drivers.map((driver: any, index: number) => (
-                <li key={index} className="flex flex-col p-2 hover:bg-blue-100 cursor-pointer">
-                  <span>Nome: {driver.name}</span>
-                  <span>Descrição: {driver.description}</span>
-                  <span>Veículo: {driver.vehicle}</span>
-                  <span>Avaliação: {driver.review.rating}</span>
-                  <span>Preço: {driver.value}</span>
-                  <button className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed">Escolher</button>
+                <li key={index} className="flex flex-col mt-1 max-w-2xl text-sm text-gray-500 p-2 m-2 border rounded-md bg-white shadow-md">
+                  <span><strong>Nome:</strong> {driver.name}</span>
+                  <span><strong>Descrição:</strong> {driver.description}</span>
+                  <span><strong>Veículo:</strong> {driver.vehicle}</span>
+                  <span><strong>Avaliação:</strong> {driver.review.rating}</span>
+                  <span><strong>Preço:</strong> {driver.value} R$ </span>
+                  <button className="bg-blue-500 text-white font-semibold py-2 px-4 m-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed ">Escolher</button>
                 </li>
               ))}
             </ul>
