@@ -16,6 +16,27 @@ export default function Home() {
     { placeId: string; text: string }[]
   >([]);
   const [showMap, setShowMap] = useState(false);
+  interface Estimate {
+    response: {
+      distance: number;
+      duration: number;
+      options: {
+        name: string;
+        description: string;
+        vehicle: string;
+        review: {
+          rating: number;
+          comment: string;
+        };
+        value: string;
+      }[];
+    };
+  }
+
+  const [estimate, setEstimate] = useState<Estimate>();
+
+  console.log(estimate);
+
 
   const handleShowMap = () => {
     setShowMap(true);
@@ -38,9 +59,7 @@ export default function Home() {
       })
     })
     const data = await response.json();
-    console.log(data);
-
-    return data;
+    setEstimate(data);
   }
 
   const fetchSuggestions = async (
@@ -156,13 +175,14 @@ export default function Home() {
         </div>
       </main>
       {showMap && (
-        <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center m-6">
+        <div className="row-start-3 flex flex-col gap-6 flex-wrap items-center justify-center m-6">
+          <h2>Opções de viagem</h2>
           <iframe
             width="400"
             height="350"
             src={IframeUrl}
           ></iframe>
-        </footer>
+        </div>
       )}
     </div>
   );
