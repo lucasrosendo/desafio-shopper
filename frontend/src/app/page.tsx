@@ -16,29 +16,13 @@ export default function Home() {
     { placeId: string; text: string }[]
   >([]);
   const [showMap, setShowMap] = useState(false);
-  interface Estimate {
-    response: {
-      distance: number;
-      duration: number;
-      options: {
-        name: string;
-        description: string;
-        vehicle: string;
-        review: {
-          rating: number;
-          comment: string;
-        };
-        value: string;
-      }[];
-    };
-  }
-
-  const [estimate, setEstimate] = useState<Estimate>();
-
-  console.log(estimate);
-
+  const [estimate, setEstimate] = useState<{ distance?: string; duration?: string }>({});
+  const [drivers, setDrivers] = useState([]);
 
   const handleShowMap = () => {
+    console.log(estimate);
+    console.log(drivers);
+    fetchEstimate();
     setShowMap(true);
   }
 
@@ -59,7 +43,8 @@ export default function Home() {
       })
     })
     const data = await response.json();
-    setEstimate(data);
+    setDrivers(data.response.options[0]);
+    setEstimate(data.response);
   }
 
   const fetchSuggestions = async (
@@ -168,7 +153,7 @@ export default function Home() {
           <button
             className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={!origin || !destination}
-            onClick={() => { handleShowMap(); fetchEstimate(); }}
+            onClick={() => { handleShowMap() }}
           >
             Calcular
           </button>
@@ -182,6 +167,29 @@ export default function Home() {
             height="350"
             src={IframeUrl}
           ></iframe>
+          <div className="flex flex-col gap-4">
+            <h2>Estimativa de viagem</h2>
+            <div className="flex flex-col gap-2">
+              <span>Distância: {estimate.distance}</span>
+              <span>Tempo: {estimate.duration}</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <h2>Motoristas disponíveis</h2>
+            <ul className="border rounded-md bg-white shadow-md">
+              {drivers.map((driver: any, index: number) => (
+                <li key={index} className="flex flex-col p-2 hover:bg-blue-100 cursor-pointer">
+                  <span>Nome: {driver.name}</span>
+                  <span>Descrição: {driver.description}</span>
+                  <span>Veículo: {driver.vehicle}</span>
+                  <span>Avaliação: {driver.review.rating}</span>
+                  <span>Preço: {driver.value}</span>
+                  <button className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed">Escolher</button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
     </div>
