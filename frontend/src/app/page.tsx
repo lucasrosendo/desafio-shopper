@@ -17,10 +17,9 @@ export default function Home() {
   const [showMap, setShowMap] = useState(false);
   const [estimate, setEstimate] = useState<{ distance?: string; duration?: string }>({});
   const [drivers, setDrivers] = useState([]);
+  const [selectDriver, setSelectDriver] = useState({});
 
   const handleShowMap = () => {
-    console.log(estimate);
-    console.log(drivers);
     fetchEstimate();
     setShowMap(true);
   }
@@ -44,6 +43,31 @@ export default function Home() {
     const data = await response.json();
     setDrivers(data.response.options[0]);
     setEstimate(data.response);
+  }
+
+  const fetchConfirmRide = async () => {
+    const distanceInNumber = estimate.distance ? parseInt(estimate.distance.replace("km", "").trim(), 10) : 0;
+    const valueInNumber = selectDriver.value ? parseInt(selectDriver.value) : 0;
+    const response = await fetch('http://localhost:4000/ride/confirm', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        customer_id: customerId,
+        origin: origin,
+        destination: destination,
+        distance: distanceInNumber,
+        duration: estimate.duration,
+        driver: {
+          id: selectDriver.id,
+          name: selectDriver.name
+        },
+        value: valueInNumber
+      })
+    })
+    const data = await response.json();
+    console.log(data);
   }
 
   const fetchSuggestions = async (
@@ -188,7 +212,9 @@ export default function Home() {
                   <span><strong>Veículo:</strong> {driver.vehicle}</span>
                   <span><strong>Avaliação:</strong> {driver.review.rating}</span>
                   <span><strong>Preço:</strong> {driver.value} R$ </span>
-                  <button className="bg-blue-500 text-white font-semibold py-2 px-4 m-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed ">Escolher</button>
+                  <button className="bg-blue-500 text-white font-semibold py-2 px-4 m-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed "
+                    onClick={() => { fetchConfirmRide(); setSelectDriver(driver); }}
+                  >Escolher</button>
                 </li>
               ))}
             </ul>

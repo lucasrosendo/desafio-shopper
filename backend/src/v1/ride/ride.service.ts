@@ -14,6 +14,7 @@ export class RideService {
   ) {}
 
   async createRide(data: ConfirmRide): Promise<any> {
+    console.log(data);
     if (!data.customer_id) {
       throw new CustomException({
         error_description: 'Customer ID is required',
