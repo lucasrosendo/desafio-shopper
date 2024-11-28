@@ -17,7 +17,18 @@ export default function Home() {
   const [showMap, setShowMap] = useState(false);
   const [estimate, setEstimate] = useState<{ distance?: string; duration?: string }>({});
   const [drivers, setDrivers] = useState([]);
-  const [selectDriver, setSelectDriver] = useState({});
+  interface Driver {
+    id: string;
+    name: string;
+    value: string;
+    description: string;
+    vehicle: string;
+    review: {
+      rating: number;
+    };
+  }
+
+  const [selectDriver, setSelectDriver] = useState<Driver | null>(null);
 
   const handleShowMap = () => {
     fetchEstimate();
@@ -29,7 +40,7 @@ export default function Home() {
   const IframeUrl = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=place_id:${idOrigin}&destination=place_id:${idDestination}&avoid=highways`;
 
   const fetchEstimate = async () => {
-    const response = await fetch('http://localhost:4000/ride/estimate', {
+    const response = await fetch('http://localhost:8080/ride/estimate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -47,8 +58,8 @@ export default function Home() {
 
   const fetchConfirmRide = async () => {
     const distanceInNumber = estimate.distance ? parseInt(estimate.distance.replace("km", "").trim(), 10) : 0;
-    const valueInNumber = selectDriver.value ? parseInt(selectDriver.value) : 0;
-    const response = await fetch('http://localhost:4000/ride/confirm', {
+    const valueInNumber = selectDriver?.value ? parseInt(selectDriver.value) : 0;
+    const response = await fetch('http://localhost:8080/ride/confirm', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -60,8 +71,8 @@ export default function Home() {
         distance: distanceInNumber,
         duration: estimate.duration,
         driver: {
-          id: selectDriver.id,
-          name: selectDriver.name
+          id: selectDriver?.id,
+          name: selectDriver?.name
         },
         value: valueInNumber
       })
@@ -138,8 +149,8 @@ export default function Home() {
                 key={index}
                 className="p-2 hover:bg-blue-100 cursor-pointer"
                 onClick={() => {
-                  setOrigin(suggestion.text);
                   setIdOrigin(suggestion.placeId);
+                  setOrigin(suggestion.text);
                   setOriginSuggestions([]);
                 }}
               >
@@ -213,7 +224,7 @@ export default function Home() {
                   <span><strong>Avaliação:</strong> {driver.review.rating}</span>
                   <span><strong>Preço:</strong> {driver.value} R$ </span>
                   <button className="bg-blue-500 text-white font-semibold py-2 px-4 m-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed "
-                    onClick={() => { fetchConfirmRide(); setSelectDriver(driver); }}
+                    onClick={() => { setSelectDriver(driver); fetchConfirmRide(); }}
                   >Escolher</button>
                 </li>
               ))}

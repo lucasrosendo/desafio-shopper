@@ -9,6 +9,10 @@ RUN npm install
 COPY ./backend .
 
 COPY ../.env .
+ 
+RUN npx prisma generate --schema=./prisma/schema.prisma
+
+RUN npm run seed
 
 RUN npm run build
 

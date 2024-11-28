@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://postgres:desafioshopper2711@localhost:5432/desafioshopper?schema=public"
 }
 
 model Driver {
@@ -33,9 +33,9 @@ model Rides {
   customer_id String
   origin      String
   destination String
-  distance    Int
+  distance    Float
   duration    String
-  value       Int
+  value       Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
